@@ -3,7 +3,18 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-test('Login and create group with unique name', async () => {
+test('End-To-End-CMS-Application-Automation', async ({}, testInfo) => {
+
+  try {
+    // Your existing test code
+  } catch (error) {
+    await testInfo.attach('error-screenshot', {
+      body: await page.screenshot(),
+      contentType: 'image/png',
+    });
+    throw error;
+  } finally {
+}
 
 const groupNumber = Math.floor(Math.random() * 100000);
 const groupName = `Group U${groupNumber}`;
@@ -33,7 +44,9 @@ fs.renameSync(oldPath, newPath);
 console.log(`🆕 Renamed video: ${firstVideo} ➝ ${videoFileName}`);
 
 const browser = await chromium.launch({
-headless: false,
+
+headless: true,
+// headless: false, // ✅ GitHub Actions
 args: ['--start-maximized'],
 });
 
@@ -46,8 +59,17 @@ const page = await context.newPage();
 
 // ✅ Login
 await page.goto('https://moyai-cms.innov8.jp/login');
-await page.getByRole('textbox', { name: 'Enter your email address' }).fill('admin@cms.com');
-await page.getByRole('textbox', { name: 'Enter your password' }).fill('Admin@1234');
+
+require('dotenv').config(); // Add at the top of your test file
+
+// Then use:
+await page.getByRole('textbox', { name: 'Enter your email address' }).fill(process.env.CMS_EMAIL);
+await page.getByRole('textbox', { name: 'Enter your password' }).fill(process.env.CMS_PASSWORD);
+
+
+// await page.getByRole('textbox', { name: 'Enter your email address' }).fill('admin@cms.com');
+// await page.getByRole('textbox', { name: 'Enter your password' }).fill('Admin@1234');
+
 await page.getByRole('button', { name: 'Login' }).click();
 await page.waitForURL('**/dashboard', { timeout: 60000 });
 
