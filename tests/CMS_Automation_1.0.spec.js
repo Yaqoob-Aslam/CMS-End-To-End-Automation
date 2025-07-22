@@ -45,8 +45,8 @@ console.log(`🆕 Renamed video: ${firstVideo} ➝ ${videoFileName}`);
 
 const browser = await chromium.launch({
 
-headless: true,
-// headless: false, // ✅ GitHub Actions
+// headless: true, // ✅ GitHub Actions
+ headless: false, 
 args: ['--start-maximized'],
 });
 
@@ -62,13 +62,14 @@ await page.goto('https://moyai-cms.innov8.jp/login');
 
 require('dotenv').config(); // Add at the top of your test file
 
-// Then use:
-await page.getByRole('textbox', { name: 'Enter your email address' }).fill(process.env.CMS_EMAIL);
-await page.getByRole('textbox', { name: 'Enter your password' }).fill(process.env.CMS_PASSWORD);
+// Then modify your login code to:
+await page.getByRole('textbox', { name: 'Enter your email address' }).fill(process.env.CMS_EMAIL || '');
+await page.getByRole('textbox', { name: 'Enter your password' }).fill(process.env.CMS_PASSWORD || '');
 
-
-// await page.getByRole('textbox', { name: 'Enter your email address' }).fill('admin@cms.com');
-// await page.getByRole('textbox', { name: 'Enter your password' }).fill('Admin@1234');
+// Add validation to fail fast if credentials are missing
+if (!process.env.CMS_EMAIL || !process.env.CMS_PASSWORD) {
+  throw new Error('Missing required environment variables: CMS_EMAIL and CMS_PASSWORD');
+}
 
 await page.getByRole('button', { name: 'Login' }).click();
 await page.waitForURL('**/dashboard', { timeout: 60000 });
