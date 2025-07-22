@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
+env:
+  CMS_EMAIL: ${{ secrets.CMS_EMAIL }}
+  CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+
 jobs:
   test:
     timeout-minutes: 60
@@ -22,8 +26,9 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
         env:
-          PLAYWRIGHT_TEST_TIMEOUT: 60000
-      - uses: actions/upload-artifact@v4  # Updated from v3 to v4
+          CMS_EMAIL: ${{ secrets.CMS_EMAIL }}
+          CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
