@@ -41,13 +41,17 @@ export default defineConfig({
     // ✅ Add global action and navigation timeouts
     actionTimeout: 10 * 1000,       // ⏱️ Max 10s for each action (click, fill, etc.)
     navigationTimeout: 30 * 1000,   // ⏱️ Max 30s for navigation (page.goto)
+    
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome']
+      use: { ...devices['Desktop Chrome'],
+        //   launchOptions: {
+        //   slowMo: 500,  // 👈 slows down Playwright operations by 500ms
+        // },
       },
     },
 

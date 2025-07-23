@@ -167,7 +167,7 @@ console.log(`✅ Timetable Created: ${timetableName}`);
 // ✅ Schedule
 await page.getByRole('link', { name: 'Schedule' }).click();
 await page.getByRole('button', { name: '+ Add Schedule' }).click();
-await page.getByRole('textbox', { name: 'Enter time table name' }).fill(scheduleName);
+await page.getByRole('textbox', { name: 'Enter schedule name' }).fill(scheduleName);
 await page.locator('.css-19bb58m').click();
 await page.getByRole('option', { name: timetableName }).click();
 const today = new Date().getDate().toString();
