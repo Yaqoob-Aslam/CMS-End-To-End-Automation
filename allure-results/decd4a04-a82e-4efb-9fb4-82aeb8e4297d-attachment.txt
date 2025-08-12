@@ -1,0 +1,9 @@
+🆕 Renamed video: test__11341.mp4 ➝ test__25981.mp4
+[dotenv@17.2.0] injecting env (2) from .env (tip: ⚙️  enable debug logging with { debug: true })
+✅ Player Created: Player U25981
+✅ Uploaded video: test__25981.mp4
+✅ Scenario Created: Scenario U25981
+✅ Timetable Created: Timetable U25981
+✅ Schedule Created: Schedule U25981 using current date
+✅ Manager Created: Omar Khan, Email: omar.khan25981@mailinator.com, Group: Group U25981
+✅ Logout successful

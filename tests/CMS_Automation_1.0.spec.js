@@ -15,7 +15,6 @@ test('End-To-End-CMS-Application-Automation', async ({}, testInfo) => {
     throw error;
   } finally {
 }
-
 const groupNumber = Math.floor(Math.random() * 100000);
 const groupName = `Group U${groupNumber}`;
 const subGroupName = `Subgroup U${groupNumber}`;
@@ -23,8 +22,9 @@ const subSubGroupName = `Sub Subgroup U${groupNumber}`;
 const playerName = `Player U${groupNumber}`;
 const videoFileName = `test__${groupNumber}.mp4`;
 const scenarioName = `Scenario U${groupNumber}`; 
-const timetableName = `Timetable U${groupNumber}`; 
+const timetableName = `Timetable U${groupNumber}`;
 const scheduleName = `Schedule U${groupNumber}`; 
+test.slow(); // Easy way to triple the default timeout
 
 // ✅ Locate the video from project-root/videos/
 const projectRoot = path.resolve(__dirname, '..');
@@ -58,7 +58,7 @@ deviceScaleFactor: undefined,
 const page = await context.newPage();
 
 // ✅ Login
-await page.goto('https://moyai-cms.innov8.jp/login');
+await page.goto('https://moyai-cms.innov8.jp/login', { timeout: 90000 }); // Increased timeout to 90 seconds
 
 require('dotenv').config(); // Add at the top of your test file
 
@@ -97,8 +97,12 @@ await page.getByRole('link', { name: 'Sub Subgroups' }).click();
 await page.getByRole('button', { name: '+ Add Sub Subgroup' }).click();
 await page.locator('.css-19bb58m').first().click();
 await page.getByRole('option', { name: groupName }).click();
+
+// Ensure subgroup dropdown is opened before waiting for option
 await page.locator('.css-35k6c7-control .css-19bb58m').click();
+await page.getByRole('option', { name: subGroupName }).waitFor({ state: 'visible', timeout: 10000 });
 await page.getByRole('option', { name: subGroupName }).click();
+
 await page.getByRole('textbox', { name: 'Enter sub subgroup name' }).fill(subSubGroupName);
 await page.getByRole('button', { name: 'Add' }).click();
 await page.getByRole('button', { name: 'Done' }).click();
@@ -109,12 +113,21 @@ await page.getByRole('list').filter({ hasText: /^Players$/ }).getByRole('link').
 await page.getByRole('button', { name: '+ Add Player' }).click();
 await page.locator('.css-19bb58m').first().click();
 await page.getByRole('option', { name: groupName }).click();
+
+// Wait for subgroup combobox to become enabled
+await page.waitForSelector('.css-35k6c7-control > .css-hlgwow > .css-19bb58m:not([aria-disabled="true"])', { timeout: 10000 });
 await page.locator('.css-35k6c7-control > .css-hlgwow > .css-19bb58m').click();
 await page.getByRole('option', { name: subGroupName }).click();
+
+// Wait for subsubgroup combobox to become enabled
+await page.waitForSelector('div:nth-child(3) > .css-b62m3t-container > .css-35k6c7-control > .css-hlgwow > .css-19bb58m:not([aria-disabled="true"])', { timeout: 10000 });
 await page.locator('div:nth-child(3) > .css-b62m3t-container > .css-35k6c7-control > .css-hlgwow > .css-19bb58m').click();
 await page.getByRole('option', { name: subSubGroupName }).click();
+
 await page.getByRole('textbox', { name: 'Enter player name' }).fill(playerName);
 await page.getByRole('button', { name: 'Add' }).click();
+// Wait for success dialog and click "Done"
+await page.waitForSelector('text=Player added successfully.', { timeout: 15000 });
 await page.getByRole('button', { name: 'Done' }).click();
 console.log(`✅ Player Created: ${playerName}`);
 
@@ -123,11 +136,30 @@ await page.getByRole('link', { name: 'Contents' }).click();
 await page.getByRole('link', { name: 'Scenario' }).click();
 await page.getByRole('button', { name: 'All Videos' }).click();
 await page.getByRole('button', { name: '+ Add Videos' }).click();
-await page.locator('input[type="file"]').setInputFiles(path.join(videoDir, videoFileName));
-await page.getByRole('button', { name: 'Add' }).click({ timeout: 15000 });
-await page.waitForSelector('button:has-text("Loading...")', { state: 'detached', timeout: 30000 });
+// Check if video file exists and is under 50MB before upload
+const videoPath = path.join(videoDir, videoFileName);
+if (!fs.existsSync(videoPath)) {
+  throw new Error(`Video file not found: ${videoPath}`);
+}
+const stats = fs.statSync(videoPath);
+if (stats.size > 50 * 1024 * 1024) {
+  throw new Error(`Video file exceeds 50MB: ${videoFileName}`);
+}
+
+await page.locator('input[type="file"]').setInputFiles(videoPath);
+await page.waitForSelector(`text=${videoFileName}`, { timeout: 180000 }); // Increased timeout to 3 minutes
+
+// Wait for loading indicator to disappear before clicking "Add"
+await page.waitForSelector('text=Loading...', { state: 'detached', timeout: 480000 });
+
+// Click "Add" button in the dialog after video appears and loading is done
+const addVideoButton = page.getByRole('button', { name: 'Add' });
+await addVideoButton.waitFor({ state: 'visible', timeout: 30000 });
+await addVideoButton.click();
+
+// Wait for "Done" button to be visible before clicking
 const doneButton = page.getByRole('button', { name: 'Done' });
-await doneButton.waitFor({ state: 'visible', timeout: 20000 });
+await doneButton.waitFor({ state: 'visible', timeout: 30000 });
 await doneButton.click();
 console.log(`✅ Uploaded video: ${videoFileName}`);
 
@@ -138,8 +170,16 @@ await page.getByRole('button', { name: '+ Make Scenario' }).click();
 await page.getByRole('textbox', { name: 'Enter scenario name' }).fill(scenarioName);
 await page.locator('.css-19bb58m').click();
 await page.getByRole('option', { name: videoFileName }).click();
-await page.getByRole('button', { name: 'Add' }, { timeout: 15000 } ).click();
-await page.getByRole('button', { name: 'Done' }).click( { timeout: 5000 });
+
+// Wait for "Add" button to be visible and enabled before clicking
+const scenarioAddButton = page.getByRole('button', { name: 'Add' });
+await scenarioAddButton.waitFor({ state: 'visible', timeout: 15000 });
+await expect(scenarioAddButton).toBeEnabled({ timeout: 15000 });
+await scenarioAddButton.click();
+
+const scenarioDoneButton = page.getByRole('button', { name: 'Done' });
+await scenarioDoneButton.waitFor({ state: 'visible', timeout: 5000 });
+await scenarioDoneButton.click();
 console.log(`✅ Scenario Created: ${scenarioName}`);
 
 // ✅ Time Table
@@ -179,7 +219,14 @@ await page.locator(`.react-datepicker__day >> text="${today}"`).first().click({ 
 await page.getByRole('textbox', { name: 'Select end date' }).click({ timeout: 5000 });
 await page.waitForSelector(`.react-datepicker__day >> text="${today}"`, { timeout: 5000 });
 await page.locator(`.react-datepicker__day >> text="${today}"`).first().click();
-await page.getByRole('button', { name: 'Add' }, { timeout: 5000 }).click();
+
+// Wait for "Add" button to be visible before clicking
+const addButton = page.getByRole('button', { name: 'Add' });
+await addButton.waitFor({ state: 'visible', timeout: 10000 });
+await addButton.click({ timeout: 5000 });
+
+await page.waitForSelector('text=Schedule added successfully.', { timeout: 15000 });
+await page.getByRole('button', { name: 'Done' }).waitFor({ state: 'visible', timeout: 10000 });
 await page.getByRole('button', { name: 'Done' }).click({ timeout: 5000 });
 console.log(`✅ Schedule Created: ${scheduleName} using current date`);
 
@@ -215,16 +262,24 @@ await page.getByRole('button', { name: '+ Create Manager' }).click();
 
 await page.getByRole('textbox', { name: 'Enter first name' }).click();
 await page.getByRole('textbox', { name: 'Enter first name' }).fill(uniqueFirstName);
-await page.getByRole('textbox', { name: 'Enter first name' }).press('Tab');
 
+// Ensure last name field is focused before filling
+await page.getByRole('textbox', { name: 'Enter last name' }).click();
 await page.getByRole('textbox', { name: 'Enter last name' }).fill(uniqueLastName);
+
+// Ensure email field is focused before filling
 await page.getByRole('textbox', { name: 'Enter email' }).click();
 await page.getByRole('textbox', { name: 'Enter email' }).fill(uniqueEmail);
 
 // ✅ Select newly created group
 await page.locator('.css-19bb58m').click();
 await page.getByRole('option', { name: groupName }).click();
-await page.getByRole('button', { name: 'Add' }).click();
+
+// Wait for "Add" button to be enabled and visible before clicking
+const managerAddButton = page.getByRole('button', { name: 'Add' });
+await managerAddButton.waitFor({ state: 'visible', timeout: 10000 });
+await expect(managerAddButton).toBeEnabled({ timeout: 10000 });
+await managerAddButton.click();
 await page.getByRole('button', { name: 'Done' }).click();
 console.log(`✅ Manager Created: ${uniqueFirstName} ${uniqueLastName}, Email: ${uniqueEmail}, Group: ${groupName}`);
 

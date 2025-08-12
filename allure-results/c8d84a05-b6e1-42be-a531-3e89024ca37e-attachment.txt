@@ -1,0 +1,6 @@
+Starting test: Login with invalid credentials
+Test "Login with invalid credentials" failed: TimeoutError: locator.fill: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('textbox', { name: 'Enter your email address' })
+
+Closing browser

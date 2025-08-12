@@ -1,0 +1,9 @@
+Error in Create a new group: Timed out 10000ms waiting for expect(locator).toBeVisible()
+
+Locator: getByText('Group U25288')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  - expect.toBeVisible with timeout 10000ms
+  - waiting for getByText('Group U25288')
+
