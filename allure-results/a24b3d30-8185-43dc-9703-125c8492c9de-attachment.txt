@@ -1,9 +1,0 @@
-🆕 Renamed video: test__25981.mp4 ➝ test__3988.mp4
-[dotenv@17.2.0] injecting env (2) from .env (tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' })
-✅ Player Created: Player U3988
-✅ Uploaded video: test__3988.mp4
-✅ Scenario Created: Scenario U3988
-✅ Timetable Created: Timetable U3988
-✅ Schedule Created: Schedule U3988 using current date
-✅ Manager Created: Omar Shah, Email: omar.shah3988@mailinator.com, Group: Group U3988
-✅ Logout successful

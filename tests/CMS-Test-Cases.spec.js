@@ -16,6 +16,7 @@
     const lastNames = ['Khan', 'Malik', 'Sheikh', 'Qureshi', 'Butt', 'Raza', 'Shah', 'Chaudhry', 'Hussain', 'Mirza'];
     const getRandomName = arr => arr[Math.floor(Math.random() * arr.length)];
 
+    
     test.beforeAll(async () => {
         // Generate unique test data
         groupNumber = Math.floor(Math.random() * 100000);
@@ -208,7 +209,7 @@
       await page.waitForURL('**/login', { timeout: 60000 });
     });
 
-  test.afterAll(async () => {
-    await browser.close();
-  });
+    test.afterAll(async () => {
+      await browser.close();
+    });
 });

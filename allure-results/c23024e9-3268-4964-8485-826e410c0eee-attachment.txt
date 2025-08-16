@@ -1,3 +1,0 @@
-Launching browser
-Starting test: Login with valid credentials
-Completed test: Login with valid credentials

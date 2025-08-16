@@ -38,7 +38,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on',
     // ✅ Add global action and navigation timeouts
     actionTimeout: 10 * 1000,       // ⏱️ Max 10s for each action (click, fill, etc.)
     navigationTimeout: 30 * 1000,   // ⏱️ Max 30s for navigation (page.goto)

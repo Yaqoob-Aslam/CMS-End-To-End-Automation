@@ -1,9 +1,0 @@
-🆕 Renamed video: test__34618.mp4 ➝ test__22247.mp4
-[dotenv@17.2.0] injecting env (2) from .env (tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`)
-✅ Player Created: Player U22247
-✅ Uploaded video: test__22247.mp4
-✅ Scenario Created: Scenario U22247
-✅ Timetable Created: Timetable U22247
-✅ Schedule Created: Schedule U22247 using current date
-✅ Manager Created: Bilal Khan, Email: bilal.khan22247@mailinator.com, Group: Group U22247
-✅ Logout successful
