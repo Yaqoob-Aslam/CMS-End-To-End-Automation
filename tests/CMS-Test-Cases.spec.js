@@ -18,6 +18,7 @@
 
     
     test.beforeAll(async () => {
+      
         // Generate unique test data
         groupNumber = Math.floor(Math.random() * 100000);
         groupName = `Group U${groupNumber}`;
@@ -111,27 +112,27 @@
     });
 
     test('Upload Video', async () => {
-    await page.getByRole('link', { name: 'Contents' }).click();
-    await page.getByRole('link', { name: 'Scenario' }).click();
-    await page.getByRole('button', { name: 'All Videos' }).click();
-    await page.getByRole('button', { name: '+ Add Videos' }).click();
-    const videoPath = path.join(videoDir, videoFileName);
-    if (!fs.existsSync(videoPath)) {
-      throw new Error(`Video file not found: ${videoPath}`);
-    }
-    const stats = fs.statSync(videoPath);
-    if (stats.size > 50 * 1024 * 1024) {
-      throw new Error(`Video file exceeds 50MB: ${videoFileName}`);
-    }
-    await page.locator('input[type="file"]').setInputFiles(videoPath);
-    await page.waitForSelector(`text=${videoFileName}`, { timeout: 180000 });
-    await page.waitForSelector('text=Loading...', { state: 'detached', timeout: 480000 });
-    const addVideoButton = page.getByRole('button', { name: 'Add' });
-    await addVideoButton.waitFor({ state: 'visible', timeout: 30000 });
-    await addVideoButton.click();
-    const doneButton = page.getByRole('button', { name: 'Done' });
-    await doneButton.waitFor({ state: 'visible', timeout: 30000 });
-    await doneButton.click();
+      await page.getByRole('link', { name: 'Contents' }).click();
+      await page.getByRole('link', { name: 'Scenario' }).click();
+      await page.getByRole('button', { name: 'All Videos' }).click();
+      await page.getByRole('button', { name: '+ Add Videos' }).click();
+      const videoPath = path.join(videoDir, videoFileName);
+      if (!fs.existsSync(videoPath)) {
+        throw new Error(`Video file not found: ${videoPath}`);
+      }
+      const stats = fs.statSync(videoPath);
+      if (stats.size > 50 * 1024 * 1024) {
+        throw new Error(`Video file exceeds 50MB: ${videoFileName}`);
+      }
+      await page.locator('input[type="file"]').setInputFiles(videoPath);
+      await page.waitForSelector(`text=${videoFileName}`, { timeout: 180000 });
+      await page.waitForSelector('text=Loading...', { state: 'detached', timeout: 480000 });
+      const addVideoButton = page.getByRole('button', { name: 'Add' });
+      await addVideoButton.waitFor({ state: 'visible', timeout: 30000 });
+      await addVideoButton.click();
+      const doneButton = page.getByRole('button', { name: 'Done' });
+      await doneButton.waitFor({ state: 'visible', timeout: 30000 });
+      await doneButton.click();
     });
 
     test('Create Scenario', async () => {

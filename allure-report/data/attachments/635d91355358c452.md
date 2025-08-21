@@ -1,0 +1,174 @@
+# Test info
+
+- Name: CMS Application Automation >> Create Group
+- Location: /home/yaqoob/CMS-End-to-End-Automation-with-Playwright/tests/CMS-Test-Cases.spec.js:65:9
+
+# Error details
+
+```
+Error: browserType.launch: Executable doesn't exist at /home/yaqoob/.cache/ms-playwright/chromium-1169/chrome-linux/chrome
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     npx playwright install                                              ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+    at /home/yaqoob/CMS-End-to-End-Automation-with-Playwright/tests/CMS-Test-Cases.spec.js:49:34
+```
+
+# Test source
+
+```ts
+   1 |     import { test, expect } from '@playwright/test';
+   2 |     import { chromium } from 'playwright';
+   3 |     import fs from 'fs';
+   4 |     import path from 'path';
+   5 |     import dotenv from 'dotenv';
+   6 |
+   7 |     dotenv.config();
+   8 |
+   9 |     test.describe.serial('CMS Application Automation', () => {
+   10 |     let browser, context, page;
+   11 |     let groupNumber, groupName, subGroupName, subSubGroupName, playerName, videoFileName, scenarioName, timetableName, scheduleName;
+   12 |     let projectRoot, videoDir, firstVideo, videoPath;
+   13 |     let uniqueFirstName, uniqueLastName, uniqueEmail;
+   14 |
+   15 |     const firstNames = ['Ali', 'Sara', 'Usman', 'Ayesha', 'Omar', 'Fatima', 'Bilal', 'Hira', 'Zain', 'Zara'];
+   16 |     const lastNames = ['Khan', 'Malik', 'Sheikh', 'Qureshi', 'Butt', 'Raza', 'Shah', 'Chaudhry', 'Hussain', 'Mirza'];
+   17 |     const getRandomName = arr => arr[Math.floor(Math.random() * arr.length)];
+   18 |
+   19 |     
+   20 |     test.beforeAll(async () => {
+   21 |         // Generate unique test data
+   22 |         groupNumber = Math.floor(Math.random() * 100000);
+   23 |         groupName = `Group U${groupNumber}`;
+   24 |         subGroupName = `Subgroup U${groupNumber}`;
+   25 |         subSubGroupName = `Sub Subgroup U${groupNumber}`;
+   26 |         playerName = `Player U${groupNumber}`;
+   27 |         videoFileName = `test__${groupNumber}.mp4`;
+   28 |         scenarioName = `Scenario U${groupNumber}`;
+   29 |         timetableName = `Timetable U${groupNumber}`;
+   30 |         scheduleName = `Schedule U${groupNumber}`;
+   31 |
+   32 |         uniqueFirstName = getRandomName(firstNames);
+   33 |         uniqueLastName = getRandomName(lastNames);
+   34 |         uniqueEmail = `${uniqueFirstName.toLowerCase()}.${uniqueLastName.toLowerCase()}${groupNumber}@mailinator.com`;
+   35 |
+   36 |         // Prepare video
+   37 |         projectRoot = path.resolve(__dirname, '..');
+   38 |         videoDir = path.join(projectRoot, 'videos');
+   39 |         const existingFiles = fs.existsSync(videoDir) ? fs.readdirSync(videoDir) : [];
+   40 |         firstVideo = existingFiles.find(file => file.endsWith('.mp4'));
+   41 |         if (!firstVideo) throw new Error('⚠️ No video found in videos/ folder');
+   42 |
+   43 |         const oldPath = path.join(videoDir, firstVideo);
+   44 |         const newPath = path.join(videoDir, videoFileName);
+   45 |         fs.renameSync(oldPath, newPath);
+   46 |         videoPath = newPath;
+   47 |
+   48 |         // Launch browser
+>  49 |         browser = await chromium.launch({ headless: false, args: ['--start-maximized'] });
+      |                                  ^ Error: browserType.launch: Executable doesn't exist at /home/yaqoob/.cache/ms-playwright/chromium-1169/chrome-linux/chrome
+   50 |         context = await browser.newContext({ viewport: null, deviceScaleFactor: undefined });
+   51 |         page = await context.newPage();
+   52 |     });
+   53 |
+   54 |     test.beforeAll(async () => {
+   55 |         await page.goto('https://moyai-cms.innov8.jp/login', { timeout: 90000 });
+   56 |         if (!process.env.CMS_EMAIL || !process.env.CMS_PASSWORD) {
+   57 |         throw new Error('Missing required environment variables: CMS_EMAIL and CMS_PASSWORD');
+   58 |         }
+   59 |         await page.getByRole('textbox', { name: 'Enter your email address' }).fill(process.env.CMS_EMAIL || '');
+   60 |         await page.getByRole('textbox', { name: 'Enter your password' }).fill(process.env.CMS_PASSWORD || '');
+   61 |         await page.getByRole('button', { name: 'Login' }).click();
+   62 |         // await page.waitForURL('**/dashboard', { timeout: 60000 });
+   63 |     });
+   64 |
+   65 |     test('Create Group', async () => {
+   66 |       await page.getByRole('button', { name: 'Expand Icon' }).click();
+   67 |       await page.getByRole('link', { name: 'Groups' }).click();
+   68 |       await page.getByRole('listitem').filter({ hasText: /^Groups$/ }).getByRole('link').click();
+   69 |       await page.getByRole('button', { name: '+ Add Group' }).click();
+   70 |       await page.getByRole('textbox', { name: 'Enter group name' }).fill(groupName);
+   71 |       await page.getByRole('button', { name: 'Add' }).click();
+   72 |       await page.getByRole('button', { name: 'Done' }).click();
+   73 |     });
+   74 |
+   75 |     test('Create Subgroup', async () => {
+   76 |       await page.getByRole('link', { name: 'Subgroups', exact: true }).click();
+   77 |       await page.getByRole('button', { name: '+ Add Subgroup' }).click();
+   78 |       await page.locator('.css-19bb58m').first().click();
+   79 |       await page.getByRole('option', { name: groupName }).click();
+   80 |       await page.getByRole('textbox', { name: 'Enter sub group name' }).fill(subGroupName);
+   81 |       await page.getByRole('button', { name: 'Add' }).click();
+   82 |       await page.getByRole('button', { name: 'Done' }).click();
+   83 |     });
+   84 |
+   85 |     test('Create Sub Subgroup', async () => {
+   86 |       await page.getByRole('link', { name: 'Sub Subgroups' }).click();
+   87 |       await page.getByRole('button', { name: '+ Add Sub Subgroup' }).click();
+   88 |       await page.locator('.css-19bb58m').first().click();
+   89 |       await page.getByRole('option', { name: groupName }).click();
+   90 |       await page.locator('.css-35k6c7-control .css-19bb58m').click();
+   91 |       await page.getByRole('option', { name: subGroupName }).click();
+   92 |       await page.getByRole('textbox', { name: 'Enter sub subgroup name' }).fill(subSubGroupName);
+   93 |       await page.getByRole('button', { name: 'Add' }).click();
+   94 |       await page.getByRole('button', { name: 'Done' }).click();
+   95 |     });
+   96 |
+   97 |     test('Create Player', async () => {
+   98 |       await page.getByRole('link', { name: 'Lan Manager' }).click();
+   99 |       await page.getByRole('list').filter({ hasText: /^Players$/ }).getByRole('link').click();
+  100 |       await page.getByRole('button', { name: '+ Add Player' }).click();
+  101 |       await page.locator('.css-19bb58m').first().click();
+  102 |       await page.getByRole('option', { name: groupName }).click();
+  103 |       await page.locator('.css-35k6c7-control > .css-hlgwow > .css-19bb58m').click();
+  104 |       await page.getByRole('option', { name: subGroupName }).click();
+  105 |       await page.locator('div:nth-child(3) > .css-b62m3t-container > .css-35k6c7-control > .css-hlgwow > .css-19bb58m').click();
+  106 |       await page.getByRole('option', { name: subSubGroupName }).click();
+  107 |       await page.getByRole('textbox', { name: 'Enter player name' }).fill(playerName);
+  108 |       await page.getByRole('button', { name: 'Add' }).click();
+  109 |       await page.waitForSelector('text=Player added successfully.', { timeout: 15000 });
+  110 |       await page.getByRole('button', { name: 'Done' }).click();
+  111 |     });
+  112 |
+  113 |     test('Upload Video', async () => {
+  114 |     await page.getByRole('link', { name: 'Contents' }).click();
+  115 |     await page.getByRole('link', { name: 'Scenario' }).click();
+  116 |     await page.getByRole('button', { name: 'All Videos' }).click();
+  117 |     await page.getByRole('button', { name: '+ Add Videos' }).click();
+  118 |     const videoPath = path.join(videoDir, videoFileName);
+  119 |     if (!fs.existsSync(videoPath)) {
+  120 |       throw new Error(`Video file not found: ${videoPath}`);
+  121 |     }
+  122 |     const stats = fs.statSync(videoPath);
+  123 |     if (stats.size > 50 * 1024 * 1024) {
+  124 |       throw new Error(`Video file exceeds 50MB: ${videoFileName}`);
+  125 |     }
+  126 |     await page.locator('input[type="file"]').setInputFiles(videoPath);
+  127 |     await page.waitForSelector(`text=${videoFileName}`, { timeout: 180000 });
+  128 |     await page.waitForSelector('text=Loading...', { state: 'detached', timeout: 480000 });
+  129 |     const addVideoButton = page.getByRole('button', { name: 'Add' });
+  130 |     await addVideoButton.waitFor({ state: 'visible', timeout: 30000 });
+  131 |     await addVideoButton.click();
+  132 |     const doneButton = page.getByRole('button', { name: 'Done' });
+  133 |     await doneButton.waitFor({ state: 'visible', timeout: 30000 });
+  134 |     await doneButton.click();
+  135 |     });
+  136 |
+  137 |     test('Create Scenario', async () => {
+  138 |       await page.getByRole('button', { name: 'All Scenarios' }).click();
+  139 |       await page.getByRole('button', { name: '+ Make Scenario' }).click();
+  140 |       await page.getByRole('textbox', { name: 'Enter scenario name' }).fill(scenarioName);
+  141 |       await page.locator('.css-19bb58m').click();
+  142 |       await page.getByRole('option', { name: videoFileName }).click();
+  143 |       const scenarioAddButton = page.getByRole('button', { name: 'Add' });
+  144 |       await expect(scenarioAddButton).toBeEnabled({ timeout: 15000 });
+  145 |       await scenarioAddButton.click();
+  146 |       await page.getByRole('button', { name: 'Done' }).click();
+  147 |     });
+  148 |
+  149 |     test('Create Timetable', async () => {
+```
